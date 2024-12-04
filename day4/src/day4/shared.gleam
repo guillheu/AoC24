@@ -32,6 +32,29 @@ pub const all_directions = [
   Top, Left, Right, TopLeft, TopRight, Bottom, BottomLeft, BottomRight,
 ]
 
+pub const diagonals = [TopLeft, TopRight, BottomRight, BottomLeft]
+
+pub fn counter_clockwise(direction: Direction) -> Direction {
+  clockwise(direction) |> clockwise |> clockwise
+}
+
+pub fn opposite(direction: Direction) -> Direction {
+  clockwise(direction) |> clockwise
+}
+
+pub fn clockwise(direction: Direction) -> Direction {
+  case direction {
+    Bottom -> Left
+    BottomLeft -> TopLeft
+    BottomRight -> BottomLeft
+    Left -> Top
+    Right -> Bottom
+    Top -> Right
+    TopLeft -> TopRight
+    TopRight -> BottomRight
+  }
+}
+
 pub fn string_to_puzzle(input: String) -> Puzzle {
   use current_puzzle, line, line_index <- list.index_fold(
     string.split(input, "\n"),
