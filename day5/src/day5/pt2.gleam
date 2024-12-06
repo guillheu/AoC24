@@ -41,27 +41,15 @@ fn recurse(
   rest: List(Int),
   blacklists: PageOrderBlacklist,
 ) -> Manual {
-  io.println("")
-  io.println("New recursion")
-  io.println("preceding: " <> string.inspect(preceding))
-  io.println("current value : " <> string.inspect(current))
-  io.println("rest: " <> string.inspect(rest))
   let blacklist = result.unwrap(dict.get(blacklists, current), [])
-  io.println("Blacklist : " <> string.inspect(blacklist))
   let #(new_preceding, new_rest) =
     correct_page_order_on(preceding, rest, blacklist)
   let next_preceding = list.append(new_preceding, [current])
-  //   process.sleep(2000)
   case new_rest {
     [] -> shared.manual_from_page_numbers(next_preceding)
     [next_current, ..next_rest] ->
       recurse(next_preceding, next_current, next_rest, blacklists)
   }
-  // Algorithm:
-  // 1: find blacklisted page number (& index?) that precedes currently evaluated page
-
-  // 2: extract blacklisted page number
-  // 3: insert blacklisted page after currently evaluated page
 }
 
 fn correct_page_order_on(
