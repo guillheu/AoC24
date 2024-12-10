@@ -1,8 +1,5 @@
 import day6/pt1
-import day6/shared.{
-  type Direction, type Guard, type Map, type Position, type Tile, Down, Guard,
-  Left, Map, Obstacle, Open, Position, Right, Up,
-}
+import day6/shared.{type Map, Map, Obstacle, Open}
 import gleam/bool
 import gleam/erlang/process.{type Subject}
 import gleam/int
@@ -25,7 +22,6 @@ pub fn pt2(map: Map) -> Int {
       )
       let modified_map = shared.add_obstacle_at(map, new_obstacle_position)
       process.start(start_process(index, modified_map, caller_subject), False)
-      //   process.sleep(10_000_000)
     },
     0,
   )
@@ -33,14 +29,12 @@ pub fn pt2(map: Map) -> Int {
     True -> count + 1
     False -> count
   }
-  |> io.debug
 }
 
 fn start_process(id: Int, map: Map, caller: Subject(Bool)) -> fn() -> Nil {
   fn() {
     io.println("Map #" <> int.to_string(id) <> " starting...")
-    // io.println(string.inspect(map.guard))
-    case recurse(map) {
+    case recurse(map, id) {
       False -> {
         io.println("Map #" <> int.to_string(id) <> " did not loop...")
         process.send(caller, False)
@@ -56,28 +50,23 @@ fn start_process(id: Int, map: Map, caller: Subject(Bool)) -> fn() -> Nil {
   }
 }
 
-fn recurse(map: Map) -> Bool {
+fn recurse(map: Map, id: Int) -> Bool {
   let map = case shared.get_map_tile_at(map, shared.guard_looking_at(map)) {
-    Obstacle -> shared.rotate_guard(map)
+    Obstacle -> {
+      shared.rotate_guard(map)
+    }
+    Open(_) -> {
+      map
+    }
+  }
+  let map = case shared.get_map_tile_at(map, shared.guard_looking_at(map)) {
+    Obstacle -> {
+      shared.rotate_guard(map)
+    }
     Open(_) -> map
   }
-
-  let map = case shared.get_map_tile_at(map, shared.guard_looking_at(map)) {
-    Obstacle -> shared.rotate_guard(map)
-    Open(_) -> map
-  }
-  let map = shared.move_guard(map)
-  //   case
-  //     shared.is_position_out_of_bounds(map, map.guard.pos),
-  //     shared.is_guard_looping(map)
-  //   {
-  //     True, True -> False
-  //     True, False -> False
-  //     False, False -> recurse(map)
-  //     False, True -> True
-  //   }
-  use <- bool.guard(shared.is_position_out_of_bounds(map, map.guard.pos), False)
   use <- bool.guard(shared.is_guard_looping(map), True)
-
-  recurse(map)
+  let map = shared.move_guard(map)
+  use <- bool.guard(shared.is_position_out_of_bounds(map, map.guard.pos), False)
+  recurse(map, id)
 }

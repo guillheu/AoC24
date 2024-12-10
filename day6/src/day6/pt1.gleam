@@ -1,8 +1,4 @@
-import day6/shared.{
-  type Direction, type Guard, type Map, type Position, type Tile, Down, Guard,
-  Left, Map, Obstacle, Open, Position, Right, Up,
-}
-import gleam/io
+import day6/shared.{type Map, Map, Obstacle, Open}
 
 pub fn pt1(map: Map) -> Int {
   let finished = draw_guard_path(map)
